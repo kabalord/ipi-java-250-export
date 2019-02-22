@@ -102,4 +102,29 @@ public class ExportController {
 
     }
 
+    @GetMapping("/factures/xlsx")
+    public void facturesXlsx(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/vnd.ms-excel");
+        response.setHeader("Content-Disposition", "attachment; filename=\"factures.xlsx\"");
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Factures");
+
+        Row headerRow = sheet.createRow(0);
+
+        Cell cellHeaderId = headerRow.createCell(0);
+        cellHeaderId.setCellValue("Id");
+
+        int i = 1;
+        //for (Client client : allClients) {
+        //   Row row = sheet.createRow(i);
+
+        // i++;
+        //}
+
+        workbook.write(response.getOutputStream());
+        workbook.close();
+
+    }
+
 }
