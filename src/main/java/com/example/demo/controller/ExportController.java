@@ -105,8 +105,6 @@ public class ExportController {
 
     }
 
-    // TP wiki états imprimés
-
     @GetMapping("/factures/xlsx")
     public void facturesXlsx(HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<Facture> factures = factureService.findAllFacture();
