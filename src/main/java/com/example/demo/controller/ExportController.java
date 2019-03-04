@@ -3,7 +3,9 @@ package com.example.demo.controller;
 import com.example.demo.entity.Client;
 import com.example.demo.entity.Facture;
 import com.example.demo.entity.LigneFacture;
+import com.example.demo.service.ClientFactureExportXlsx;
 import com.example.demo.service.ClientService;
+import com.example.demo.service.ExporterCSV;
 import com.example.demo.service.FactureService;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -35,15 +37,18 @@ public class ExportController {
     @Autowired
     private FactureService factureService;
 
+    @Autowired
+    private ClientFactureExportXlsx clientFactureExportXlsx;
+
     @GetMapping("/clients/csv")
     public void clientsCSV(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("text/csv");
         response.setHeader("Content-Disposition", "attachment; filename=\"clients.csv\"");
         PrintWriter writer = response.getWriter();
         List<Client> allClients = clientService.findAllClients();
-        writer.println("Id;Nom;Prenom;Date naissance;Age");
-        // for(Client client : allClients)
         LocalDate now = LocalDate.now();
+        /*for(Client client : allClients)
+        writer.println("Id;Nom;Prenom;Date naissance;Age");
         for (Iterator<Client> i = allClients.iterator(); i.hasNext();){
             Client client = i.next();
 
@@ -55,7 +60,17 @@ public class ExportController {
             );
 
 
-        }
+        }*/
+
+        ExporterCSV<Client> export = new ExporterCSV<>();
+        export.addColumnLong("Id", c1 -> c1.getId());
+        export.addColumnString("Nom", c -> c.getNom());
+        export.addColumnString("Prénom", c -> c.getPrenom());
+        export.addColumnString("Date de naissance", c -> c.getDateNaissance().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        export.addColumnInteger("Age", c -> now.getYear() - c.getDateNaissance().getYear());
+
+        export.createCSV(response.getWriter(), allClients);
+
     }
 
     // pour obtenir une cell dans un fichier excel
