@@ -3,15 +3,14 @@ package com.example.demo.controller;
 import com.example.demo.entity.Client;
 import com.example.demo.entity.Facture;
 import com.example.demo.entity.LigneFacture;
-import com.example.demo.service.ClientFactureExportXlsx;
-import com.example.demo.service.ClientService;
-import com.example.demo.service.ExporterCSV;
-import com.example.demo.service.FactureService;
+import com.example.demo.service.*;
+import com.itextpdf.text.DocumentException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,6 +38,9 @@ public class ExportController {
 
     @Autowired
     private ClientFactureExportXlsx clientFactureExportXlsx;
+
+    @Autowired
+    private ExportPDFITextService exportPDFITextService;
 
     @GetMapping("/clients/csv")
     public void clientsCSV(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -231,6 +233,17 @@ public class ExportController {
         cell.setCellValue(total);
         cell.setCellStyle(cellStyleTopBotRight);
 
+    }
+
+
+    // Pour exporter PDF
+
+    @GetMapping("/factures/{id}/pdf")
+    public void facturePDF(@PathVariable("id") Long factureId, HttpServletRequest request, HttpServletResponse response) throws IOException, DocumentException, DocumentException {
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=\"facture.pdf\"");
+        Facture facture = factureService.findById(factureId);
+        exportPDFITextService.export(response.getOutputStream(), facture);
     }
 
 }
